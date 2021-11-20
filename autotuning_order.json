@@ -1,0 +1,43 @@
+{
+	"initial_datetime": "{{pastTime}}",
+	"final_datetime": "{{currentTime}}",
+    "strategy":"7896bca9-ff62-4ac2-a708-20c6aa17afef",
+    "data_source": "data_api",
+    "data_source_data": {
+        "input_list": [
+            "{{data.pv_id}}",
+            "{{data.mv_id}}",
+            "{{data.sp_id}}",
+            "{{data.md_id}}"
+        ]
+    },
+    "inputs_map": {
+        "pv": "{{data.pv_id}}",
+        "mv": "{{data.mv_id}}",
+        "sp": "{{data.sp_id}}",
+        "mode": "{{data.md_id}}"
+    },
+    "strategy_config": {
+        "mv_max": 100,
+        "mv_min": 0,
+        "pv_max": 60,
+        "pv_min": 0,
+        "mode": 1,
+        "pid_config": {
+            "controller_type": 2,
+            "controller_structure": "1"
+        },
+        "mv_eng_unit": {"type": 1, "multiplier": 1},
+        "pv_eng_unit": {"type": 0, "multiplier": 1},
+        "cruz_sp_limit": 60,
+        "auto_tuning_config": {
+            "sampling_time": 1,
+            "system_time_delay": 0,
+            "system_time_constant": 190
+        }
+    },
+    "callback_type": "api",
+    "callback_data": {
+        "url": "{{data.callback_url}}"
+    }
+}

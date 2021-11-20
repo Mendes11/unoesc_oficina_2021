@@ -1,0 +1,143 @@
+<div class="card text-center">  
+    <div class="card-body" style="padding:0">
+      <h4 style="color:steelblue;text-align:left;padding-left:9px;padding-top:5px">Resultado Predição</h4>
+      <div style="float:left" id="indicator"> </div> 
+      <div style="float:right" id="myDiv">      </div>
+      <div> <br> </div>    
+    </div>
+  </div>
+  
+  <script>
+    console.log(DashboardBlock)
+    var appid = DashboardBlock.input.ctx["app_id"]
+    var resposta
+    var request_data = new XMLHttpRequest();
+    request_data.open('GET', 'https://' + appid + '.wnology.io/get-forecast-data', true);
+    request_data.onreadystatechange = function() {
+      console.log("enviou")
+      if (request_data.readyState === 4) {
+        resposta = JSON.parse(request_data.response)
+        drawChar()
+      }
+    }
+    request_data.send(null);
+  
+    var wgraph = (DashboardBlock.input.size.width - 10)*0.98;
+    var hgraph = (DashboardBlock.input.size.height - 4)*0.83;
+    var windic = (DashboardBlock.input.size.width - 10)*0.19;
+    var hindic = (DashboardBlock.input.size.height - 4)*0.83;
+    if (screen.width < 500)
+    { wgraph = (DashboardBlock.input.size.width - 10)*0.82;
+      hgraph = (DashboardBlock.input.size.height - 4)*0.76;
+      windic = (DashboardBlock.input.size.width - 10)*0.19;
+      hindic = (DashboardBlock.input.size.height - 4)*0.76;
+    }
+    
+    var drawChar = function(){
+      var datax = []
+      var datay = []
+      var predx = []
+      var predy = []
+      resposta.values.forEach(function(point){
+        datax.push(point.timestamp)
+        datay.push(point.value)
+      })
+      resposta.result.results.forEach(function(point){
+        predy.push(point)
+      })
+      resposta.result.predict_timestamp.forEach(function(point){
+        predx.push(point)
+      })
+      
+      datareal = {
+      y: datay,
+      x: datax,
+      type: 'scatter',
+      name:'Real',
+      line: {shape: 'linear',
+      width: 1,
+      color:'steelblue'},
+      hoverinfo: 'y',
+      mode: 'lines',
+      };
+      datareal2 = {
+      y: predy,
+      x: predx,
+      type: 'scatter',
+      name:'Real',
+      line: {shape: 'linear',
+      width: 1,
+      color:'orange'},
+      hoverinfo: 'y',
+      mode: 'lines',
+      };
+  
+      layout2 = {
+        paper_bgcolor: '#27272700',
+        plot_bgcolor: '#30303000',
+        showlegend: false,
+        xaxis: {
+          showgrid: false,
+          zeroline: true,
+          showline: false,
+          mirror: 'ticks',
+          color: '#000F',
+          gridcolor: '#000F',
+          gridwidth: 1,
+          zerolinecolor: '#000F',
+          zerolinewidth: 1,
+          linecolor: '#000F',
+          tickfont: {
+            size: 10,
+            color: 'black'
+          },
+          tickangle:15,
+        },
+        yaxis: {
+          
+          rangemode:"tozero",
+          showgrid: true,
+          zeroline: true,
+          showline: false,
+          mirror: 'ticks',
+          color: '#000F',
+          gridcolor: '#0003',
+          gridwidth: 1,
+          zerolinecolor: '#000F',
+          zerolinewidth: 1,
+          linecolor: '#000F',
+          linewidth: 1,
+          tickfont: {
+            size: 10,
+            color: 'black'
+          },
+        },
+        autosize: false,
+        width: wgraph,
+        height: hgraph,
+        margin: {l: 40, r: 25, b: 42, t: 0, pad: 0 }
+      };
+  
+      Plotly.newPlot('myDiv', [datareal,datareal2], layout2, {displayModeBar: false});
+  
+      var data = [
+        {
+        type: "indicator",
+        mode: "number",
+        value: resposta.value[resposta.value.length - 1],
+        title: {       text:"<span style='font-size:0.6em;color:gray'>Última<br>Leitura</span>"      },
+        //number: { suffix: " ºC" },
+        domain: { x: [0, 1], y: [0, 1] }
+        }
+      ];
+  
+      var layout = {
+       width: windic,
+       height: hindic,
+       margin: { t: 40, b: 0, l: 5, r: 5 }
+      };
+     
+    };
+    DashboardBlock.on('change', drawChar);
+    drawChar() 
+  </script>

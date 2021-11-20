@@ -1,0 +1,314 @@
+{
+  "_exportDate": "2021-11-20T06:38:47.900Z",
+  "_type": "flow",
+  "applicationId": "6197e09a367d82c23b3a1879",
+  "customNodeConfig": {
+    "fields": [
+      {
+        "description": "",
+        "id": "token",
+        "label": "Access Token",
+        "required": true,
+        "type": "stringTemplate"
+      },
+      {
+        "description": "Insert the Input Name",
+        "id": "input_name",
+        "label": "Input Name",
+        "required": true,
+        "type": "stringTemplate",
+        "validRegExp": "\\b[a-z_]+\\b"
+      },
+      {
+        "description": "Nome Verboso",
+        "id": "verbose_name",
+        "label": "Input Verbose Name",
+        "required": true,
+        "type": "stringTemplate",
+        "validRegExp": "\\b[\\w\\d\\s]+\\b"
+      },
+      {
+        "description": "",
+        "id": "project",
+        "label": "Project ID",
+        "required": true,
+        "type": "numberTemplate"
+      },
+      {
+        "description": "",
+        "id": "opc_server_id",
+        "label": "OPC-UA Server ID",
+        "required": true,
+        "type": "stringTemplate"
+      },
+      {
+        "description": "ex: 4",
+        "id": "opc_node_ns",
+        "label": "Node Namespace",
+        "required": true,
+        "type": "stringTemplate",
+        "validRegExp": "\\d+"
+      },
+      {
+        "defaultValue": "s",
+        "description": "",
+        "id": "opc_node_identifier_type",
+        "label": "Tipo de Identificador",
+        "options": [
+          {
+            "label": "s",
+            "value": "s"
+          },
+          {
+            "label": "i",
+            "value": "i"
+          }
+        ],
+        "type": "select"
+      },
+      {
+        "description": "",
+        "id": "opc_node_identifier",
+        "label": "Valor Identificador",
+        "required": true,
+        "type": "stringTemplate",
+        "validRegExp": "[\\w\\d\\.]+"
+      },
+      {
+        "description": "seconds",
+        "id": "scan_rate",
+        "label": "Scan Rate ",
+        "required": true,
+        "type": "numberTemplate",
+        "validMin": 1
+      }
+    ],
+    "outputCount": 1,
+    "resultMode": "required"
+  },
+  "customNodeSupports": [
+    "cloud"
+  ],
+  "customNodeVersions": [
+  ],
+  "customNodes": [
+  ],
+  "description": "",
+  "enabled": true,
+  "flowClass": "customNode",
+  "globals": [
+  ],
+  "id": "61986a1eb04b695a0dc0e3d7",
+  "name": "BirminD OPC TAG",
+  "nodes": [
+    {
+      "config": {
+        "branchIndexTemplate": 0,
+        "resultSourcePath": "data.opc_input.body"
+      },
+      "id": "tE6hNt5vFR",
+      "meta": {
+        "category": "customNodeEnd",
+        "description": "End the Custom Node run",
+        "label": "Output",
+        "name": "custom-node-end-single",
+        "x": 380,
+        "y": 880
+      },
+      "outputIds": [
+      ],
+      "type": "CustomNodeCapNode"
+    },
+    {
+      "config": {
+        "authCredentials": {
+        },
+        "authType": "none",
+        "bodyTemplate": "{\n    \"input_name\": \"{{data.input_name}}\",\n    \"verbose_name\": \"{{data.verbose_name}}\",\n    \"input_type\": \"continuous\"\n}",
+        "caCertTemplate": "",
+        "disableSSLVerification": false,
+        "encodingTemplate": "utf8",
+        "errorBehavior": "throw",
+        "errorPath": "",
+        "headerInfo": [
+          {
+            "key": "Authorization",
+            "valueTemplate": "Bearer {{data.token.response.body.access}}"
+          },
+          {
+            "key": "Content-Type",
+            "valueTemplate": "application/json"
+          }
+        ],
+        "method": "POST",
+        "requestEncodingTemplate": "utf8",
+        "responsePath": "data.data_input",
+        "timeoutTemplate": "30",
+        "uriTemplate": "https://api.birmind.cloud/api/v1/data/projects/{{data.project}}/data-inputs/"
+      },
+      "id": "A0dF9facy7",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Create PV",
+        "name": "http",
+        "x": 380,
+        "y": 540
+      },
+      "outputIds": [
+        [
+          "YqmrAN2MGl"
+        ]
+      ],
+      "type": "HttpNode"
+    },
+    {
+      "config": {
+        "authCredentials": {
+        },
+        "authType": "none",
+        "bodyTemplate": "{\n    \"data_input\": \"{{data.data_input.body.id}}\",\n    \"opc_server\": \"{{data.opc_server_id}}\",\n    \"scan_rate\": {{data.scan_rate}},\n    \"node\": \"ns={{opc_node_ns}};{{data.opc_node_identifier_type}}={{data.opc_node_identifier}}\"\n}",
+        "caCertTemplate": "",
+        "disableSSLVerification": false,
+        "encodingTemplate": "utf8",
+        "errorBehavior": "throw",
+        "errorPath": "",
+        "headerInfo": [
+          {
+            "key": "Content-Type",
+            "valueTemplate": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "valueTemplate": "Bearer {{data.token.response.body.access}}"
+          }
+        ],
+        "method": "POST",
+        "requestEncodingTemplate": "utf8",
+        "responsePath": "data.opc_input",
+        "timeoutTemplate": "",
+        "uriTemplate": "https://api.birmind.cloud/api/v1/collectors/projects/{{data.project}}/opcua/opc-inputs/"
+      },
+      "id": "YqmrAN2MGl",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Collect PV TAG",
+        "name": "http",
+        "x": 380,
+        "y": 700
+      },
+      "outputIds": [
+        [
+          "tE6hNt5vFR"
+        ]
+      ],
+      "type": "HttpNode"
+    },
+    {
+      "config": {
+        "authCredentials": {
+        },
+        "authType": "none",
+        "caCertTemplate": "",
+        "disableSSLVerification": false,
+        "encodingTemplate": "utf8",
+        "errorBehavior": "throw",
+        "errorPath": "",
+        "headerInfo": [
+          {
+            "key": "Authorization",
+            "valueTemplate": "Bearer {{data.token}}"
+          },
+          {
+            "key": "Content-Type",
+            "valueTemplate": "application/json"
+          }
+        ],
+        "method": "GET",
+        "requestEncodingTemplate": "utf8",
+        "responsePath": "data.existing_tag",
+        "timeoutTemplate": "",
+        "uriTemplate": "https://api.birmind.cloud/api/v1/collectors/projects/{{data.project}}/opcua/opc-inputs/?node=ns%3D{{data.opc_node_ns}}%3B{{data.opc_node_identifier_type}}%3D{{data.opc_node_identifier}}"
+      },
+      "id": "PRiwT9rZl9",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Check PV TAG",
+        "name": "http",
+        "x": 280,
+        "y": 200
+      },
+      "outputIds": [
+        [
+          "sn8WArwJTq"
+        ]
+      ],
+      "type": "HttpNode"
+    },
+    {
+      "config": {
+        "expression": "{{data.existing_tag.count}} == 0"
+      },
+      "id": "sn8WArwJTq",
+      "meta": {
+        "category": "logic",
+        "description": "",
+        "label": "Conditional",
+        "name": "conditional",
+        "x": 280,
+        "y": 320
+      },
+      "outputIds": [
+        [
+          "qJGoDrPQ_b"
+        ],
+        [
+          "A0dF9facy7"
+        ]
+      ],
+      "type": "ConditionalNode"
+    },
+    {
+      "config": {
+        "branchIndexTemplate": 0,
+        "resultSourcePath": "data.existing_tag.body.results.[0]"
+      },
+      "id": "qJGoDrPQ_b",
+      "meta": {
+        "category": "customNodeEnd",
+        "description": "End the Custom Node run",
+        "label": "Output",
+        "name": "custom-node-end-single",
+        "x": 180,
+        "y": 540
+      },
+      "outputIds": [
+      ],
+      "type": "CustomNodeCapNode"
+    }
+  ],
+  "triggers": [
+    {
+      "config": {
+      },
+      "key": "customNodeStart",
+      "meta": {
+        "category": "trigger",
+        "description": "The Custom Node fires here ...",
+        "label": "Start: Test",
+        "name": "customNodeStart",
+        "uiId": "SywHdN5P6W",
+        "x": 280,
+        "y": 80
+      },
+      "outputIds": [
+        [
+          "PRiwT9rZl9"
+        ]
+      ],
+      "type": "customNodeStart"
+    }
+  ]
+}

@@ -1,0 +1,2223 @@
+{
+  "_exportDate": "2021-11-20T06:39:19.060Z",
+  "_type": "flow",
+  "applicationId": "6197e09a367d82c23b3a1879",
+  "customNodeVersions": [
+  ],
+  "customNodes": [
+    {
+      "applicationId": "6197e09a367d82c23b3a1879",
+      "customNodeConfig": {
+        "fields": [
+          {
+            "description": "",
+            "id": "token",
+            "label": "Access Token",
+            "required": true,
+            "type": "stringTemplate"
+          },
+          {
+            "description": "Insert the Input Name",
+            "id": "input_name",
+            "label": "Input Name",
+            "required": true,
+            "type": "stringTemplate",
+            "validRegExp": "\\b[a-z_]+\\b"
+          },
+          {
+            "description": "Nome Verboso",
+            "id": "verbose_name",
+            "label": "Input Verbose Name",
+            "required": true,
+            "type": "stringTemplate",
+            "validRegExp": "\\b[\\w\\d\\s]+\\b"
+          },
+          {
+            "description": "",
+            "id": "project",
+            "label": "Project ID",
+            "required": true,
+            "type": "numberTemplate"
+          },
+          {
+            "description": "",
+            "id": "opc_server_id",
+            "label": "OPC-UA Server ID",
+            "required": true,
+            "type": "stringTemplate"
+          },
+          {
+            "description": "ex: 4",
+            "id": "opc_node_ns",
+            "label": "Node Namespace",
+            "required": true,
+            "type": "stringTemplate",
+            "validRegExp": "\\d+"
+          },
+          {
+            "defaultValue": "s",
+            "description": "",
+            "id": "opc_node_identifier_type",
+            "label": "Tipo de Identificador",
+            "options": [
+              {
+                "label": "s",
+                "value": "s"
+              },
+              {
+                "label": "i",
+                "value": "i"
+              }
+            ],
+            "type": "select"
+          },
+          {
+            "description": "",
+            "id": "opc_node_identifier",
+            "label": "Valor Identificador",
+            "required": true,
+            "type": "stringTemplate",
+            "validRegExp": "[\\w\\d\\.]+"
+          },
+          {
+            "description": "seconds",
+            "id": "scan_rate",
+            "label": "Scan Rate ",
+            "required": true,
+            "type": "numberTemplate",
+            "validMin": 1
+          }
+        ],
+        "outputCount": 1,
+        "resultMode": "required"
+      },
+      "customNodeSupports": [
+        "cloud"
+      ],
+      "description": "",
+      "enabled": true,
+      "flowClass": "customNode",
+      "globals": [
+      ],
+      "id": "61986a1eb04b695a0dc0e3d7",
+      "name": "BirminD OPC TAG",
+      "nodes": [
+        {
+          "config": {
+            "branchIndexTemplate": 0,
+            "resultSourcePath": "data.opc_input.body"
+          },
+          "id": "tE6hNt5vFR",
+          "meta": {
+            "category": "customNodeEnd",
+            "description": "End the Custom Node run",
+            "label": "Output",
+            "name": "custom-node-end-single",
+            "x": 380,
+            "y": 880
+          },
+          "outputIds": [
+          ],
+          "type": "CustomNodeCapNode"
+        },
+        {
+          "config": {
+            "authCredentials": {
+            },
+            "authType": "none",
+            "bodyTemplate": "{\n    \"input_name\": \"{{data.input_name}}\",\n    \"verbose_name\": \"{{data.verbose_name}}\",\n    \"input_type\": \"continuous\"\n}",
+            "caCertTemplate": "",
+            "disableSSLVerification": false,
+            "encodingTemplate": "utf8",
+            "errorBehavior": "throw",
+            "errorPath": "",
+            "headerInfo": [
+              {
+                "key": "Authorization",
+                "valueTemplate": "Bearer {{data.token.response.body.access}}"
+              },
+              {
+                "key": "Content-Type",
+                "valueTemplate": "application/json"
+              }
+            ],
+            "method": "POST",
+            "requestEncodingTemplate": "utf8",
+            "responsePath": "data.data_input",
+            "timeoutTemplate": "30",
+            "uriTemplate": "https://api.birmind.cloud/api/v1/data/projects/{{data.project}}/data-inputs/"
+          },
+          "id": "A0dF9facy7",
+          "meta": {
+            "category": "data",
+            "description": "",
+            "label": "Create PV",
+            "name": "http",
+            "x": 380,
+            "y": 540
+          },
+          "outputIds": [
+            [
+              "YqmrAN2MGl"
+            ]
+          ],
+          "type": "HttpNode"
+        },
+        {
+          "config": {
+            "authCredentials": {
+            },
+            "authType": "none",
+            "bodyTemplate": "{\n    \"data_input\": \"{{data.data_input.body.id}}\",\n    \"opc_server\": \"{{data.opc_server_id}}\",\n    \"scan_rate\": {{data.scan_rate}},\n    \"node\": \"ns={{opc_node_ns}};{{data.opc_node_identifier_type}}={{data.opc_node_identifier}}\"\n}",
+            "caCertTemplate": "",
+            "disableSSLVerification": false,
+            "encodingTemplate": "utf8",
+            "errorBehavior": "throw",
+            "errorPath": "",
+            "headerInfo": [
+              {
+                "key": "Content-Type",
+                "valueTemplate": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "valueTemplate": "Bearer {{data.token.response.body.access}}"
+              }
+            ],
+            "method": "POST",
+            "requestEncodingTemplate": "utf8",
+            "responsePath": "data.opc_input",
+            "timeoutTemplate": "",
+            "uriTemplate": "https://api.birmind.cloud/api/v1/collectors/projects/{{data.project}}/opcua/opc-inputs/"
+          },
+          "id": "YqmrAN2MGl",
+          "meta": {
+            "category": "data",
+            "description": "",
+            "label": "Collect PV TAG",
+            "name": "http",
+            "x": 380,
+            "y": 700
+          },
+          "outputIds": [
+            [
+              "tE6hNt5vFR"
+            ]
+          ],
+          "type": "HttpNode"
+        },
+        {
+          "config": {
+            "authCredentials": {
+            },
+            "authType": "none",
+            "caCertTemplate": "",
+            "disableSSLVerification": false,
+            "encodingTemplate": "utf8",
+            "errorBehavior": "throw",
+            "errorPath": "",
+            "headerInfo": [
+              {
+                "key": "Authorization",
+                "valueTemplate": "Bearer {{data.token}}"
+              },
+              {
+                "key": "Content-Type",
+                "valueTemplate": "application/json"
+              }
+            ],
+            "method": "GET",
+            "requestEncodingTemplate": "utf8",
+            "responsePath": "data.existing_tag",
+            "timeoutTemplate": "",
+            "uriTemplate": "https://api.birmind.cloud/api/v1/collectors/projects/{{data.project}}/opcua/opc-inputs/?node=ns%3D{{data.opc_node_ns}}%3B{{data.opc_node_identifier_type}}%3D{{data.opc_node_identifier}}"
+          },
+          "id": "PRiwT9rZl9",
+          "meta": {
+            "category": "data",
+            "description": "",
+            "label": "Check PV TAG",
+            "name": "http",
+            "x": 280,
+            "y": 200
+          },
+          "outputIds": [
+            [
+              "sn8WArwJTq"
+            ]
+          ],
+          "type": "HttpNode"
+        },
+        {
+          "config": {
+            "expression": "{{data.existing_tag.count}} == 0"
+          },
+          "id": "sn8WArwJTq",
+          "meta": {
+            "category": "logic",
+            "description": "",
+            "label": "Conditional",
+            "name": "conditional",
+            "x": 280,
+            "y": 320
+          },
+          "outputIds": [
+            [
+              "qJGoDrPQ_b"
+            ],
+            [
+              "A0dF9facy7"
+            ]
+          ],
+          "type": "ConditionalNode"
+        },
+        {
+          "config": {
+            "branchIndexTemplate": 0,
+            "resultSourcePath": "data.existing_tag.body.results.[0]"
+          },
+          "id": "qJGoDrPQ_b",
+          "meta": {
+            "category": "customNodeEnd",
+            "description": "End the Custom Node run",
+            "label": "Output",
+            "name": "custom-node-end-single",
+            "x": 180,
+            "y": 540
+          },
+          "outputIds": [
+          ],
+          "type": "CustomNodeCapNode"
+        }
+      ],
+      "triggers": [
+        {
+          "config": {
+          },
+          "key": "customNodeStart",
+          "meta": {
+            "category": "trigger",
+            "description": "The Custom Node fires here ...",
+            "label": "Start: Test",
+            "name": "customNodeStart",
+            "uiId": "SywHdN5P6W",
+            "x": 280,
+            "y": 80
+          },
+          "outputIds": [
+            [
+              "PRiwT9rZl9"
+            ]
+          ],
+          "type": "customNodeStart"
+        }
+      ]
+    }
+  ],
+  "description": "",
+  "enabled": true,
+  "flowClass": "cloud",
+  "globals": [
+  ],
+  "id": "6197e8ed7e9dfc4f1fa2d4f4",
+  "name": "Flow",
+  "nodes": [
+    {
+      "config": {
+        "authCredentials": {
+        },
+        "authType": "none",
+        "bodyTemplate": "{\"username\": \"unoesc\", \"password\": \"Cursoaiunoesc@2021\"}",
+        "caCertTemplate": "",
+        "disableSSLVerification": false,
+        "encodingTemplate": "utf8",
+        "errorBehavior": "throw",
+        "errorPath": "",
+        "headerInfo": [
+          {
+            "key": "Content-Type",
+            "valueTemplate": "application/json"
+          }
+        ],
+        "method": "POST",
+        "requestEncodingTemplate": "utf8",
+        "responsePath": "data.token.response",
+        "timeoutTemplate": "30",
+        "uriTemplate": "https://api.birmind.cloud/api/v1/get-token/"
+      },
+      "id": "_KPV3RXzWQ",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Get Token",
+        "name": "http",
+        "x": 700,
+        "y": 140
+      },
+      "outputIds": [
+        [
+          "4t8xsBUtNn"
+        ]
+      ],
+      "type": "HttpNode"
+    },
+    {
+      "config": {
+        "rules": [
+          {
+            "destination": "data.project",
+            "type": "set",
+            "valueTemplate": "3192",
+            "valueTemplateType": "string"
+          }
+        ]
+      },
+      "id": "4t8xsBUtNn",
+      "meta": {
+        "category": "logic",
+        "description": "",
+        "label": "Set Project",
+        "name": "mutate",
+        "x": 700,
+        "y": 260
+      },
+      "outputIds": [
+        [
+          "nxaGSRiE_9"
+        ]
+      ],
+      "type": "MutateNode"
+    },
+    {
+      "config": {
+        "rules": [
+          {
+            "destination": "data.server_id",
+            "type": "set",
+            "valueTemplate": "457ac4fd-b149-42ee-b2ac-afbd8a7ba6aa",
+            "valueTemplateType": "string"
+          }
+        ]
+      },
+      "id": "nxaGSRiE_9",
+      "meta": {
+        "category": "logic",
+        "description": "",
+        "label": "Set OPC UA Server",
+        "name": "mutate",
+        "x": 700,
+        "y": 400
+      },
+      "outputIds": [
+        [
+          "gzIk94CkuR",
+          "MZ9gEDOoaj",
+          "RgcUFPa2Er",
+          "tOmTlDXXGw"
+        ]
+      ],
+      "type": "MutateNode"
+    },
+    {
+      "config": {
+        "customNodeId": "61986a1eb04b695a0dc0e3d7",
+        "customNodeVersion": "default",
+        "fields": [
+          {
+            "id": "token",
+            "value": "{{data.token.response.body.access}}"
+          },
+          {
+            "id": "input_name",
+            "value": "pv"
+          },
+          {
+            "id": "verbose_name",
+            "value": "PV"
+          },
+          {
+            "id": "project",
+            "value": "{{data.project}}"
+          },
+          {
+            "id": "opc_server_id",
+            "value": "{{data.server_id}}"
+          },
+          {
+            "id": "opc_node_ns",
+            "value": "4"
+          },
+          {
+            "id": "opc_node_identifier_type",
+            "value": "s"
+          },
+          {
+            "id": "opc_node_identifier",
+            "value": "PV1"
+          },
+          {
+            "id": "scan_rate",
+            "value": "1"
+          }
+        ],
+        "resultPath": "data.tag"
+      },
+      "id": "gzIk94CkuR",
+      "meta": {
+        "category": "customNodeExecute",
+        "description": "",
+        "label": "Get PV TAG",
+        "name": "custom-node-execute-node",
+        "x": 260,
+        "y": 560
+      },
+      "outputIds": [
+        [
+          "uqwPjv9_r4",
+          "fewE6hnsrp"
+        ]
+      ],
+      "type": "CustomNodeExecuteNode"
+    },
+    {
+      "config": {
+        "customNodeId": "61986a1eb04b695a0dc0e3d7",
+        "customNodeVersion": "default",
+        "fields": [
+          {
+            "id": "token",
+            "value": "{{data.token.response.body.access}}"
+          },
+          {
+            "id": "input_name",
+            "value": "mv"
+          },
+          {
+            "id": "verbose_name",
+            "value": "MV"
+          },
+          {
+            "id": "project",
+            "value": "{{data.project}}"
+          },
+          {
+            "id": "opc_server_id",
+            "value": "{{data.server_id}}"
+          },
+          {
+            "id": "opc_node_ns",
+            "value": "4"
+          },
+          {
+            "id": "opc_node_identifier_type",
+            "value": "s"
+          },
+          {
+            "id": "opc_node_identifier",
+            "value": "MV1"
+          },
+          {
+            "id": "scan_rate",
+            "value": "1"
+          }
+        ],
+        "resultPath": "data.tag"
+      },
+      "id": "MZ9gEDOoaj",
+      "meta": {
+        "category": "customNodeExecute",
+        "description": "",
+        "label": "Get MV TAG",
+        "name": "custom-node-execute-node",
+        "x": 540,
+        "y": 560
+      },
+      "outputIds": [
+        [
+          "qaL07aFP0B",
+          "IvtI42JyA_"
+        ]
+      ],
+      "type": "CustomNodeExecuteNode"
+    },
+    {
+      "config": {
+        "customNodeId": "61986a1eb04b695a0dc0e3d7",
+        "customNodeVersion": "default",
+        "fields": [
+          {
+            "id": "token",
+            "value": "{{data.token.response.body.access}}"
+          },
+          {
+            "id": "input_name",
+            "value": "sp"
+          },
+          {
+            "id": "verbose_name",
+            "value": "SP"
+          },
+          {
+            "id": "project",
+            "value": "{{data.project}}"
+          },
+          {
+            "id": "opc_server_id",
+            "value": "{{data.server_id}}"
+          },
+          {
+            "id": "opc_node_ns",
+            "value": "4"
+          },
+          {
+            "id": "opc_node_identifier_type",
+            "value": "s"
+          },
+          {
+            "id": "opc_node_identifier",
+            "value": "SP1"
+          },
+          {
+            "id": "scan_rate",
+            "value": "1"
+          }
+        ],
+        "resultPath": "data.tag"
+      },
+      "id": "RgcUFPa2Er",
+      "meta": {
+        "category": "customNodeExecute",
+        "description": "",
+        "label": "Get SP TAG",
+        "name": "custom-node-execute-node",
+        "x": 840,
+        "y": 560
+      },
+      "outputIds": [
+        [
+          "nu5QVsPYMd",
+          "bwSSsClNsH"
+        ]
+      ],
+      "type": "CustomNodeExecuteNode"
+    },
+    {
+      "config": {
+        "customNodeId": "61986a1eb04b695a0dc0e3d7",
+        "customNodeVersion": "default",
+        "fields": [
+          {
+            "id": "token",
+            "value": "{{data.token.response.body.access}}"
+          },
+          {
+            "id": "input_name",
+            "value": "md"
+          },
+          {
+            "id": "verbose_name",
+            "value": "MD"
+          },
+          {
+            "id": "project",
+            "value": "{{data.project}}"
+          },
+          {
+            "id": "opc_server_id",
+            "value": "{{data.server_id}}"
+          },
+          {
+            "id": "opc_node_ns",
+            "value": "4"
+          },
+          {
+            "id": "opc_node_identifier_type",
+            "value": "s"
+          },
+          {
+            "id": "opc_node_identifier",
+            "value": "MD1"
+          },
+          {
+            "id": "scan_rate",
+            "value": "1"
+          }
+        ],
+        "resultPath": "data.tag"
+      },
+      "id": "tOmTlDXXGw",
+      "meta": {
+        "category": "customNodeExecute",
+        "description": "",
+        "label": "Get MD TAG",
+        "name": "custom-node-execute-node",
+        "x": 1140,
+        "y": 560
+      },
+      "outputIds": [
+        [
+          "89J4wBnLDD",
+          "bNb_rcNwvx"
+        ]
+      ],
+      "type": "CustomNodeExecuteNode"
+    },
+    {
+      "config": {
+        "keyName": "mv_opc_tag",
+        "resultPath": "",
+        "value": "data.tag.id",
+        "valueType": "path"
+      },
+      "id": "qaL07aFP0B",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Store MV Tag",
+        "name": "store-value",
+        "x": 440,
+        "y": 940
+      },
+      "outputIds": [
+      ],
+      "type": "StoreValueNode"
+    },
+    {
+      "config": {
+        "keyName": "mv_input",
+        "resultPath": "",
+        "value": "data.tag.data_input",
+        "valueType": "path"
+      },
+      "id": "IvtI42JyA_",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Store MV Input",
+        "name": "store-value",
+        "x": 620,
+        "y": 940
+      },
+      "outputIds": [
+      ],
+      "type": "StoreValueNode"
+    },
+    {
+      "config": {
+        "keyName": "sp_opc_tag",
+        "resultPath": "",
+        "value": "data.tag.id",
+        "valueType": "path"
+      },
+      "id": "nu5QVsPYMd",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Store SP Tag",
+        "name": "store-value",
+        "x": 800,
+        "y": 940
+      },
+      "outputIds": [
+      ],
+      "type": "StoreValueNode"
+    },
+    {
+      "config": {
+        "keyName": "sp_input",
+        "resultPath": "",
+        "value": "data.tag.data_input",
+        "valueType": "path"
+      },
+      "id": "bwSSsClNsH",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Store SP Input",
+        "name": "store-value",
+        "x": 980,
+        "y": 940
+      },
+      "outputIds": [
+      ],
+      "type": "StoreValueNode"
+    },
+    {
+      "config": {
+        "keyName": "md_opc_tag",
+        "resultPath": "",
+        "value": "data.tag.id",
+        "valueType": "path"
+      },
+      "id": "89J4wBnLDD",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Store MD Tag",
+        "name": "store-value",
+        "x": 1160,
+        "y": 940
+      },
+      "outputIds": [
+      ],
+      "type": "StoreValueNode"
+    },
+    {
+      "config": {
+        "keyName": "md_input",
+        "resultPath": "",
+        "value": "data.tag.data_input",
+        "valueType": "path"
+      },
+      "id": "bNb_rcNwvx",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Store MD Input",
+        "name": "store-value",
+        "x": 1340,
+        "y": 940
+      },
+      "outputIds": [
+      ],
+      "type": "StoreValueNode"
+    },
+    {
+      "config": {
+        "keyName": "pv_opc_tag",
+        "resultPath": "",
+        "value": "data.tag.id",
+        "valueType": "path"
+      },
+      "id": "uqwPjv9_r4",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Store PV Tag",
+        "name": "store-value",
+        "x": 80,
+        "y": 940
+      },
+      "outputIds": [
+      ],
+      "type": "StoreValueNode"
+    },
+    {
+      "config": {
+        "keyName": "pv_input",
+        "resultPath": "",
+        "value": "data.tag.data_input",
+        "valueType": "path"
+      },
+      "id": "fewE6hnsrp",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Store PV Input",
+        "name": "store-value",
+        "x": 260,
+        "y": 940
+      },
+      "outputIds": [
+      ],
+      "type": "StoreValueNode"
+    },
+    {
+      "config": {
+        "defaultValue": "null",
+        "defaultValueType": "template",
+        "getAll": false,
+        "keyName": "pv_input",
+        "valuePath": "data.pv_id"
+      },
+      "id": "4wJLdOkThr",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Storage: Get Value",
+        "name": "get-value",
+        "x": 2800,
+        "y": 140
+      },
+      "outputIds": [
+        [
+          "VKGCDnE7zH"
+        ]
+      ],
+      "type": "GetValueNode"
+    },
+    {
+      "config": {
+        "authCredentials": {
+        },
+        "authType": "none",
+        "bodyTemplate": "{\"username\": \"unoesc\", \"password\": \"Cursoaiunoesc@2021\"}",
+        "caCertTemplate": "",
+        "disableSSLVerification": false,
+        "encodingTemplate": "utf8",
+        "errorBehavior": "throw",
+        "errorPath": "",
+        "headerInfo": [
+          {
+            "key": "Content-Type",
+            "valueTemplate": "application/json"
+          }
+        ],
+        "method": "POST",
+        "requestEncodingTemplate": "utf8",
+        "responsePath": "data.token.response",
+        "timeoutTemplate": "30",
+        "uriTemplate": "https://api.birmind.cloud/api/v1/get-token/"
+      },
+      "id": "gYNsrC2NMh",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Get Token",
+        "name": "http",
+        "x": 2800,
+        "y": 540
+      },
+      "outputIds": [
+        [
+          "ECI20eC2os"
+        ]
+      ],
+      "type": "HttpNode"
+    },
+    {
+      "config": {
+        "rules": [
+          {
+            "destination": "data.project",
+            "type": "set",
+            "valueTemplate": "3192",
+            "valueTemplateType": "string"
+          }
+        ]
+      },
+      "id": "ECI20eC2os",
+      "meta": {
+        "category": "logic",
+        "description": "",
+        "label": "Set Project",
+        "name": "mutate",
+        "x": 2800,
+        "y": 660
+      },
+      "outputIds": [
+        [
+          "lOmUAKf7aR"
+        ]
+      ],
+      "type": "MutateNode"
+    },
+    {
+      "config": {
+        "authCredentials": {
+        },
+        "authType": "none",
+        "bodyTemplate": "{\n    \"input_list\": [\"{{data.pv_id}}\"],\n    \"initial_datetime\": \"2021-10-01T00:00:00Z\",\n    \"final_datetime\": \"2022-01-01T00:00:00Z\"\n}\n",
+        "caCertTemplate": "",
+        "disableSSLVerification": false,
+        "encodingTemplate": "utf8",
+        "errorBehavior": "throw",
+        "errorPath": "",
+        "headerInfo": [
+          {
+            "key": "Content-Type",
+            "valueTemplate": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "valueTemplate": "Bearer {{data.token.response.body.access}}"
+          }
+        ],
+        "method": "POST",
+        "requestEncodingTemplate": "utf8",
+        "responsePath": "data.pv_values",
+        "timeoutTemplate": "",
+        "uriTemplate": "http://api.birmind.cloud/api/v1/data/projects/{{data.project}}/data-values/search/?resample_points=1000"
+      },
+      "id": "lOmUAKf7aR",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "HTTP",
+        "name": "http",
+        "x": 2800,
+        "y": 780
+      },
+      "outputIds": [
+        [
+          "DXj2xW7Hg1"
+        ]
+      ],
+      "type": "HttpNode"
+    },
+    {
+      "config": {
+        "script": "let pv = payload.data.pv_values.body.map((val) => {\n    return {\"timestamp\": val.timestamp, \"value\": val.value}\n});\n\nlet sp = payload.data.sp_values.body.map((val) => {\n    return {\"timestamp\": val.timestamp, \"value\": val.value}\n});\n\nlet mv = payload.data.mv_values.body.map((val) => {\n    return {\"timestamp\": val.timestamp, \"value\": val.value}\n});\n\npayload.data.values = {\n    \"pv\": pv, \"mv\": mv, \"sp\": sp\n}\nreturn payload"
+      },
+      "id": "NSvH2J0JGG",
+      "meta": {
+        "category": "logic",
+        "description": "",
+        "label": "Function",
+        "name": "function",
+        "x": 2800,
+        "y": 1120
+      },
+      "outputIds": [
+        [
+          "duGW7cqVYS"
+        ]
+      ],
+      "type": "RawFunctionNode"
+    },
+    {
+      "config": {
+        "bodyTemplate": "data.values",
+        "bodyTemplateType": "path",
+        "cookieInfo": [
+        ],
+        "experienceVersion": "develop",
+        "headerInfo": [
+        ],
+        "mqttTopicsTemplate": [
+        ],
+        "replyIdPath": "",
+        "replyType": "custom",
+        "responseCodeTemplate": "",
+        "sameSiteTemplate": ""
+      },
+      "id": "duGW7cqVYS",
+      "meta": {
+        "category": "output",
+        "description": "",
+        "label": "Endpoint: Reply",
+        "mqttTopicsType": [
+        ],
+        "name": "endpoint-reply",
+        "x": 2800,
+        "y": 1240
+      },
+      "outputIds": [
+      ],
+      "type": "EndpointReplyNode"
+    },
+    {
+      "config": {
+        "authCredentials": {
+        },
+        "authType": "none",
+        "bodyTemplate": "{\n    \"input_list\": [\"{{data.mv_id}}\"],\n    \"initial_datetime\": \"2021-10-01T00:00:00Z\",\n    \"final_datetime\": \"2022-01-01T00:00:00Z\"\n}\n",
+        "caCertTemplate": "",
+        "disableSSLVerification": false,
+        "encodingTemplate": "utf8",
+        "errorBehavior": "throw",
+        "errorPath": "",
+        "headerInfo": [
+          {
+            "key": "Content-Type",
+            "valueTemplate": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "valueTemplate": "Bearer {{data.token.response.body.access}}"
+          }
+        ],
+        "method": "POST",
+        "requestEncodingTemplate": "utf8",
+        "responsePath": "data.mv_values",
+        "timeoutTemplate": "",
+        "uriTemplate": "http://api.birmind.cloud/api/v1/data/projects/{{data.project}}/data-values/search/?resample_points=1000"
+      },
+      "id": "DXj2xW7Hg1",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "HTTP",
+        "name": "http",
+        "x": 2800,
+        "y": 900
+      },
+      "outputIds": [
+        [
+          "EQuhTfNOgH"
+        ]
+      ],
+      "type": "HttpNode"
+    },
+    {
+      "config": {
+        "authCredentials": {
+        },
+        "authType": "none",
+        "bodyTemplate": "{\n    \"input_list\": [\"{{data.sp_id}}\"],\n    \"initial_datetime\": \"2021-10-01T00:00:00Z\",\n    \"final_datetime\": \"2022-01-01T00:00:00Z\"\n}\n",
+        "caCertTemplate": "",
+        "disableSSLVerification": false,
+        "encodingTemplate": "utf8",
+        "errorBehavior": "throw",
+        "errorPath": "",
+        "headerInfo": [
+          {
+            "key": "Content-Type",
+            "valueTemplate": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "valueTemplate": "Bearer {{data.token.response.body.access}}"
+          }
+        ],
+        "method": "POST",
+        "requestEncodingTemplate": "utf8",
+        "responsePath": "data.sp_values",
+        "timeoutTemplate": "",
+        "uriTemplate": "http://api.birmind.cloud/api/v1/data/projects/{{data.project}}/data-values/search/?resample_points=1000"
+      },
+      "id": "EQuhTfNOgH",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "HTTP",
+        "name": "http",
+        "x": 2800,
+        "y": 1000
+      },
+      "outputIds": [
+        [
+          "NSvH2J0JGG"
+        ]
+      ],
+      "type": "HttpNode"
+    },
+    {
+      "config": {
+        "defaultValue": "null",
+        "defaultValueType": "template",
+        "getAll": false,
+        "keyName": "sp_input",
+        "valuePath": "data.sp_id"
+      },
+      "id": "VKGCDnE7zH",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Storage: Get Value",
+        "name": "get-value",
+        "x": 2800,
+        "y": 260
+      },
+      "outputIds": [
+        [
+          "UtgcJpdBzj"
+        ]
+      ],
+      "type": "GetValueNode"
+    },
+    {
+      "config": {
+        "defaultValue": "null",
+        "defaultValueType": "template",
+        "getAll": false,
+        "keyName": "mv_input",
+        "valuePath": "data.mv_id"
+      },
+      "id": "UtgcJpdBzj",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Storage: Get Value",
+        "name": "get-value",
+        "x": 2800,
+        "y": 380
+      },
+      "outputIds": [
+        [
+          "gYNsrC2NMh"
+        ]
+      ],
+      "type": "GetValueNode"
+    },
+    {
+      "config": {
+        "authCredentials": {
+        },
+        "authType": "none",
+        "bodyTemplate": "{\"username\": \"unoesc\", \"password\": \"Cursoaiunoesc@2021\"}",
+        "caCertTemplate": "",
+        "disableSSLVerification": false,
+        "encodingTemplate": "utf8",
+        "errorBehavior": "throw",
+        "errorPath": "",
+        "headerInfo": [
+          {
+            "key": "Content-Type",
+            "valueTemplate": "application/json"
+          }
+        ],
+        "method": "POST",
+        "requestEncodingTemplate": "utf8",
+        "responsePath": "data.token.response",
+        "timeoutTemplate": "30",
+        "uriTemplate": "https://api.birmind.cloud/api/v1/get-token/"
+      },
+      "id": "0nsHK6p5SE",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Get Token",
+        "name": "http",
+        "x": 1920,
+        "y": 180
+      },
+      "outputIds": [
+        [
+          "6ceJLd3VXz"
+        ]
+      ],
+      "type": "HttpNode"
+    },
+    {
+      "config": {
+        "rules": [
+          {
+            "destination": "data.project",
+            "type": "set",
+            "valueTemplate": "3192",
+            "valueTemplateType": "string"
+          }
+        ]
+      },
+      "id": "6ceJLd3VXz",
+      "meta": {
+        "category": "logic",
+        "description": "",
+        "label": "Set Project",
+        "name": "mutate",
+        "x": 1920,
+        "y": 300
+      },
+      "outputIds": [
+        [
+          "gDyYY02voY"
+        ]
+      ],
+      "type": "MutateNode"
+    },
+    {
+      "config": {
+        "defaultValue": "null",
+        "defaultValueType": "template",
+        "getAll": false,
+        "keyName": "pv_input",
+        "valuePath": "data.pv_id"
+      },
+      "id": "gDyYY02voY",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Storage: Get Value",
+        "name": "get-value",
+        "x": 1920,
+        "y": 420
+      },
+      "outputIds": [
+        [
+          "UIzHgsrox8"
+        ]
+      ],
+      "type": "GetValueNode"
+    },
+    {
+      "config": {
+        "defaultValue": "null",
+        "defaultValueType": "template",
+        "getAll": false,
+        "keyName": "sp_input",
+        "valuePath": "data.sp_id"
+      },
+      "id": "UIzHgsrox8",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Storage: Get Value",
+        "name": "get-value",
+        "x": 1920,
+        "y": 540
+      },
+      "outputIds": [
+        [
+          "ULsgsHTK3l"
+        ]
+      ],
+      "type": "GetValueNode"
+    },
+    {
+      "config": {
+        "defaultValue": "null",
+        "defaultValueType": "template",
+        "getAll": false,
+        "keyName": "mv_input",
+        "valuePath": "data.mv_id"
+      },
+      "id": "ULsgsHTK3l",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Storage: Get Value",
+        "name": "get-value",
+        "x": 1920,
+        "y": 660
+      },
+      "outputIds": [
+        [
+          "Rmo8twA_X2"
+        ]
+      ],
+      "type": "GetValueNode"
+    },
+    {
+      "config": {
+        "defaultValue": "null",
+        "defaultValueType": "template",
+        "getAll": false,
+        "keyName": "md_input",
+        "valuePath": "data.md_id"
+      },
+      "id": "Rmo8twA_X2",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Storage: Get Value",
+        "name": "get-value",
+        "x": 1920,
+        "y": 780
+      },
+      "outputIds": [
+        [
+          "5nvGgpjGAo"
+        ]
+      ],
+      "type": "GetValueNode"
+    },
+    {
+      "config": {
+        "authCredentials": {
+        },
+        "authType": "none",
+        "bodyTemplate": "{\n\t\"initial_datetime\": \"{{pastTime}}\",\n\t\"final_datetime\": \"{{currentTime}}\",\n    \"strategy\":\"281bf348-f161-4f95-b971-30cc46417246\",\n    \"data_source\": \"data_api\",\n    \"data_source_data\": {\n        \"input_list\": [\n            \"{{data.pv_id}}\"\n        ]\n    },\n    \"inputs_map\": {\n        \"y\": \"{{data.pv_id}}\"\n    },\n    \"strategy_config\": {\n        \"predict_steps\": 20,\n        \"persist\":true,\n        \"update\":\"refit\",\n        \"auto_ml_choices\":[\"linear\", \"linear-seasonal\", \"modular\"],\n        \"persistence_duration\" :{\n            \"days\":7\n        }\n    },\n    \"callback_type\": \"api\",\n    \"callback_data\": {\n        \"url\": \"{{data.callback_url}}\"\n    },\n    \"preprocess\": {\n        \"input_configurations\": {\n            \"y\": [\n                {\n            \t    \"args\": {\"errors\": \"coerce\"},\n            \t    \"function\": \"convert_to_numeric\"\n       \t        },\n\t\t\t\t{\n\t\t\t\t\t\"args\": {\"method\":\"normalize\", \"normalization_method\":\"min/max\"},\n            \t    \"function\": \"scale_series\"\n\t\t\t\t}\n            ]\n        },\n        \"global_configurations\": [\n            {\n                \"args\": {\"keep\": \"first\", \"input_types\": \"continuous\", \"data_types\":\"dataframe\"},\n                \"function\": \"remove_duplicated_index\"\n            },\n            {\n                \"function\":\"resample_dataset\",\n                \"args\":{\n                    \"frequency_value\":5,\n                    \"frequency_unit\":\"T\",\n                    \"default_numeric\":\"max\",\n                    \"default_non_numeric\":\"last\"\n                }\n            },\n            {\n                \"function\": \"nan_processing\",\n                \"args\": {\"method\": \"interpolate\", \"interpolate_method\":\"linear\"}\n            }\n        ]\n    }\n}",
+        "caCertTemplate": "",
+        "disableSSLVerification": false,
+        "encodingTemplate": "utf8",
+        "errorBehavior": "throw",
+        "errorPath": "",
+        "headerInfo": [
+          {
+            "key": "Content-Type",
+            "valueTemplate": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "valueTemplate": "Bearer {{data.token.response.body.access}}"
+          }
+        ],
+        "method": "POST",
+        "requestEncodingTemplate": "utf8",
+        "responsePath": "data.forecast_order",
+        "timeoutTemplate": "",
+        "uriTemplate": "https://api.birmind.cloud/api/v1/order/projects/{{data.project}}/orders/?auto_dispatch=True"
+      },
+      "id": "fmkrN5Oyhy",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Criar Forecast",
+        "name": "http",
+        "x": 1920,
+        "y": 1260
+      },
+      "outputIds": [
+        [
+          "fatTfCdAVX"
+        ]
+      ],
+      "type": "HttpNode"
+    },
+    {
+      "config": {
+        "keyName": "forecast_order",
+        "resultPath": "",
+        "value": "data.forecast_order.body",
+        "valueType": "path"
+      },
+      "id": "fatTfCdAVX",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Set Order",
+        "name": "store-value",
+        "x": 1920,
+        "y": 1400
+      },
+      "outputIds": [
+        [
+          "mDh5aEGXH8"
+        ]
+      ],
+      "type": "StoreValueNode"
+    },
+    {
+      "config": {
+        "message": "",
+        "property": ""
+      },
+      "id": "mDh5aEGXH8",
+      "meta": {
+        "category": "output",
+        "description": "",
+        "label": "Debug",
+        "name": "debug",
+        "x": 1920,
+        "y": 1520
+      },
+      "outputIds": [
+      ],
+      "type": "DebugNode"
+    },
+    {
+      "config": {
+        "rules": [
+          {
+            "destination": "data.callback_url",
+            "type": "set",
+            "valueTemplate": "https://triggers.app.wnology.io/webhooks/HzdqRzFmYpg8PMijHjBWk1LAVTO3vuIu-69ff8EG",
+            "valueTemplateType": "string"
+          }
+        ]
+      },
+      "id": "5nvGgpjGAo",
+      "meta": {
+        "category": "logic",
+        "description": "",
+        "label": "Mutate",
+        "name": "mutate",
+        "x": 1920,
+        "y": 920
+      },
+      "outputIds": [
+        [
+          "Ln6LoIs8y0"
+        ]
+      ],
+      "type": "MutateNode"
+    },
+    {
+      "config": {
+        "operation": "format",
+        "resultFormatString": "YYYY-MM-DD HH:mm:ss",
+        "resultPath": "currentTime",
+        "timezone": "UTC"
+      },
+      "id": "Ln6LoIs8y0",
+      "meta": {
+        "category": "logic",
+        "description": "",
+        "label": "Hora Atual",
+        "name": "date-time",
+        "x": 1920,
+        "y": 1020
+      },
+      "outputIds": [
+        [
+          "rN5NPWwkm5"
+        ]
+      ],
+      "type": "DateTimeNode"
+    },
+    {
+      "config": {
+        "numberValue": "90",
+        "operation": "subtract",
+        "resultFormatString": "YYYY-MM-DD HH:mm:ss",
+        "resultPath": "pastTime",
+        "timezone": "UTC",
+        "unit": "day"
+      },
+      "id": "rN5NPWwkm5",
+      "meta": {
+        "category": "logic",
+        "description": "",
+        "label": "Date/Time",
+        "name": "date-time",
+        "x": 1920,
+        "y": 1160
+      },
+      "outputIds": [
+        [
+          "fmkrN5Oyhy"
+        ]
+      ],
+      "type": "DateTimeNode"
+    },
+    {
+      "config": {
+        "keyName": "forecast_result",
+        "resultPath": "",
+        "value": "data.body.result.result",
+        "valueType": "path"
+      },
+      "id": "YR_xiXwbJf",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Storage: Set Value",
+        "name": "store-value",
+        "x": 2300,
+        "y": 180
+      },
+      "outputIds": [
+        [
+          "MAIwjcxKvA"
+        ]
+      ],
+      "type": "StoreValueNode"
+    },
+    {
+      "config": {
+        "message": "Forecast Result",
+        "property": ""
+      },
+      "id": "MAIwjcxKvA",
+      "meta": {
+        "category": "output",
+        "description": "",
+        "label": "Debug",
+        "name": "debug",
+        "x": 2300,
+        "y": 320
+      },
+      "outputIds": [
+      ],
+      "type": "DebugNode"
+    },
+    {
+      "config": {
+        "defaultValue": "null",
+        "defaultValueType": "json",
+        "getAll": false,
+        "keyName": "forecast_result",
+        "valuePath": "data.result"
+      },
+      "id": "gnqImKTNW0",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Storage: Get Value",
+        "name": "get-value",
+        "x": 3080,
+        "y": 140
+      },
+      "outputIds": [
+        [
+          "lOjNxTTJEq"
+        ]
+      ],
+      "type": "GetValueNode"
+    },
+    {
+      "config": {
+        "authCredentials": {
+        },
+        "authType": "none",
+        "bodyTemplate": "{\"username\": \"unoesc\", \"password\": \"Cursoaiunoesc@2021\"}",
+        "caCertTemplate": "",
+        "disableSSLVerification": false,
+        "encodingTemplate": "utf8",
+        "errorBehavior": "throw",
+        "errorPath": "",
+        "headerInfo": [
+          {
+            "key": "Content-Type",
+            "valueTemplate": "application/json"
+          }
+        ],
+        "method": "POST",
+        "requestEncodingTemplate": "utf8",
+        "responsePath": "data.token.response",
+        "timeoutTemplate": "30",
+        "uriTemplate": "https://api.birmind.cloud/api/v1/get-token/"
+      },
+      "id": "K24kfckDkD",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Get Token",
+        "name": "http",
+        "x": 3080,
+        "y": 380
+      },
+      "outputIds": [
+        [
+          "njE0ai0lA5"
+        ]
+      ],
+      "type": "HttpNode"
+    },
+    {
+      "config": {
+        "rules": [
+          {
+            "destination": "data.project",
+            "type": "set",
+            "valueTemplate": "3192",
+            "valueTemplateType": "string"
+          }
+        ]
+      },
+      "id": "njE0ai0lA5",
+      "meta": {
+        "category": "logic",
+        "description": "",
+        "label": "Set Project",
+        "name": "mutate",
+        "x": 3080,
+        "y": 500
+      },
+      "outputIds": [
+        [
+          "EgsElvQvI1"
+        ]
+      ],
+      "type": "MutateNode"
+    },
+    {
+      "config": {
+        "authCredentials": {
+        },
+        "authType": "none",
+        "bodyTemplate": "{\n    \"input_list\": [\"{{data.pv_id}}\"],\n    \"initial_datetime\": \"2021-10-01T00:00:00Z\",\n    \"final_datetime\": \"2022-01-01T00:00:00Z\"\n}\n",
+        "caCertTemplate": "",
+        "disableSSLVerification": false,
+        "encodingTemplate": "utf8",
+        "errorBehavior": "throw",
+        "errorPath": "",
+        "headerInfo": [
+          {
+            "key": "Content-Type",
+            "valueTemplate": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "valueTemplate": "Bearer {{data.token.response.body.access}}"
+          }
+        ],
+        "method": "POST",
+        "requestEncodingTemplate": "utf8",
+        "responsePath": "data.pv_values",
+        "timeoutTemplate": "",
+        "uriTemplate": "http://api.birmind.cloud/api/v1/data/projects/{{data.project}}/data-values/search/?resample_freq=5T"
+      },
+      "id": "EgsElvQvI1",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "HTTP",
+        "name": "http",
+        "x": 3080,
+        "y": 620
+      },
+      "outputIds": [
+        [
+          "UYccZZrGk8"
+        ]
+      ],
+      "type": "HttpNode"
+    },
+    {
+      "config": {
+        "script": "let pv = payload.data.pv_values.body.map((val) => {\n    return {\"timestamp\": val.timestamp, \"value\": val.value}\n});\n\n\n\npayload.response = {\n    \"values\": pv,\n    \"result\": payload.data.result\n}\n"
+      },
+      "id": "UYccZZrGk8",
+      "meta": {
+        "category": "logic",
+        "description": "",
+        "label": "Function",
+        "name": "function",
+        "x": 3080,
+        "y": 740
+      },
+      "outputIds": [
+        [
+          "psJ76qUnmD"
+        ]
+      ],
+      "type": "RawFunctionNode"
+    },
+    {
+      "config": {
+        "bodyTemplate": "response",
+        "bodyTemplateType": "path",
+        "cookieInfo": [
+        ],
+        "experienceVersion": "develop",
+        "headerInfo": [
+        ],
+        "mqttTopicsTemplate": [
+        ],
+        "replyIdPath": "",
+        "replyType": "custom",
+        "responseCodeTemplate": "",
+        "sameSiteTemplate": ""
+      },
+      "id": "psJ76qUnmD",
+      "meta": {
+        "category": "output",
+        "description": "",
+        "label": "Endpoint: Reply",
+        "mqttTopicsType": [
+        ],
+        "name": "endpoint-reply",
+        "x": 3080,
+        "y": 860
+      },
+      "outputIds": [
+      ],
+      "type": "EndpointReplyNode"
+    },
+    {
+      "config": {
+        "defaultValue": "null",
+        "defaultValueType": "template",
+        "getAll": false,
+        "keyName": "pv_input",
+        "valuePath": "data.pv_id"
+      },
+      "id": "lOjNxTTJEq",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Storage: Get Value",
+        "name": "get-value",
+        "x": 3080,
+        "y": 260
+      },
+      "outputIds": [
+        [
+          "K24kfckDkD"
+        ]
+      ],
+      "type": "GetValueNode"
+    },
+    {
+      "config": {
+        "authCredentials": {
+        },
+        "authType": "none",
+        "bodyTemplate": "{\"username\": \"unoesc\", \"password\": \"Cursoaiunoesc@2021\"}",
+        "caCertTemplate": "",
+        "disableSSLVerification": false,
+        "encodingTemplate": "utf8",
+        "errorBehavior": "throw",
+        "errorPath": "",
+        "headerInfo": [
+          {
+            "key": "Content-Type",
+            "valueTemplate": "application/json"
+          }
+        ],
+        "method": "POST",
+        "requestEncodingTemplate": "utf8",
+        "responsePath": "data.token.response",
+        "timeoutTemplate": "30",
+        "uriTemplate": "https://api.birmind.cloud/api/v1/get-token/"
+      },
+      "id": "Od8lewnnne",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Get Token",
+        "name": "http",
+        "x": 3580,
+        "y": 180
+      },
+      "outputIds": [
+        [
+          "3exvDt_0Ec"
+        ]
+      ],
+      "type": "HttpNode"
+    },
+    {
+      "config": {
+        "rules": [
+          {
+            "destination": "data.project",
+            "type": "set",
+            "valueTemplate": "3192",
+            "valueTemplateType": "string"
+          }
+        ]
+      },
+      "id": "3exvDt_0Ec",
+      "meta": {
+        "category": "logic",
+        "description": "",
+        "label": "Set Project",
+        "name": "mutate",
+        "x": 3580,
+        "y": 300
+      },
+      "outputIds": [
+        [
+          "TLYqWIDDpp"
+        ]
+      ],
+      "type": "MutateNode"
+    },
+    {
+      "config": {
+        "defaultValue": "null",
+        "defaultValueType": "template",
+        "getAll": false,
+        "keyName": "pv_input",
+        "valuePath": "data.pv_id"
+      },
+      "id": "TLYqWIDDpp",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Storage: Get Value",
+        "name": "get-value",
+        "x": 3580,
+        "y": 420
+      },
+      "outputIds": [
+        [
+          "xYIgCM7wmQ"
+        ]
+      ],
+      "type": "GetValueNode"
+    },
+    {
+      "config": {
+        "defaultValue": "null",
+        "defaultValueType": "template",
+        "getAll": false,
+        "keyName": "sp_input",
+        "valuePath": "data.sp_id"
+      },
+      "id": "xYIgCM7wmQ",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Storage: Get Value",
+        "name": "get-value",
+        "x": 3580,
+        "y": 540
+      },
+      "outputIds": [
+        [
+          "CAzHYR3Wek"
+        ]
+      ],
+      "type": "GetValueNode"
+    },
+    {
+      "config": {
+        "defaultValue": "null",
+        "defaultValueType": "template",
+        "getAll": false,
+        "keyName": "mv_input",
+        "valuePath": "data.mv_id"
+      },
+      "id": "CAzHYR3Wek",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Storage: Get Value",
+        "name": "get-value",
+        "x": 3580,
+        "y": 660
+      },
+      "outputIds": [
+        [
+          "rzJTGK7bsU"
+        ]
+      ],
+      "type": "GetValueNode"
+    },
+    {
+      "config": {
+        "defaultValue": "null",
+        "defaultValueType": "template",
+        "getAll": false,
+        "keyName": "md_input",
+        "valuePath": "data.md_id"
+      },
+      "id": "rzJTGK7bsU",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Storage: Get Value",
+        "name": "get-value",
+        "x": 3580,
+        "y": 780
+      },
+      "outputIds": [
+        [
+          "_ercudu7qX"
+        ]
+      ],
+      "type": "GetValueNode"
+    },
+    {
+      "config": {
+        "authCredentials": {
+        },
+        "authType": "none",
+        "bodyTemplate": "{\n\t\"initial_datetime\": \"{{pastTime}}\",\n\t\"final_datetime\": \"{{currentTime}}\",\n    \"strategy\":\"7896bca9-ff62-4ac2-a708-20c6aa17afef\",\n    \"data_source\": \"data_api\",\n    \"data_source_data\": {\n        \"input_list\": [\n            \"{{data.pv_id}}\",\n            \"{{data.mv_id}}\",\n            \"{{data.sp_id}}\",\n            \"{{data.md_id}}\"\n        ]\n    },\n    \"inputs_map\": {\n        \"pv\": \"{{data.pv_id}}\",\n        \"mv\": \"{{data.mv_id}}\",\n        \"sp\": \"{{data.sp_id}}\",\n        \"mode\": \"{{data.md_id}}\"\n    },\n    \"strategy_config\": {\n        \"mv_max\": 100,\n        \"mv_min\": 0,\n        \"pv_max\": 60,\n        \"pv_min\": 0,\n        \"mode\": 1,\n        \"pid_config\": {\n            \"controller_type\": 2,\n            \"controller_structure\": \"1\"\n        },\n        \"mv_eng_unit\": {\"type\": 1, \"multiplier\": 1},\n        \"pv_eng_unit\": {\"type\": 0, \"multiplier\": 1},\n        \"cruz_sp_limit\": 60,\n        \"auto_tuning_config\": {\n            \"sampling_time\": 1,\n            \"system_time_delay\": 0,\n            \"system_time_constant\": 190\n        }\n    },\n    \"callback_type\": \"api\",\n    \"callback_data\": {\n        \"url\": \"{{data.callback_url}}\"\n    }\n}",
+        "caCertTemplate": "",
+        "disableSSLVerification": false,
+        "encodingTemplate": "utf8",
+        "errorBehavior": "throw",
+        "errorPath": "",
+        "headerInfo": [
+          {
+            "key": "Content-Type",
+            "valueTemplate": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "valueTemplate": "Bearer {{data.token.response.body.access}}"
+          }
+        ],
+        "method": "POST",
+        "requestEncodingTemplate": "utf8",
+        "responsePath": "data.forecast_order",
+        "timeoutTemplate": "",
+        "uriTemplate": "https://api.birmind.cloud/api/v1/order/projects/{{data.project}}/orders/?auto_dispatch=True"
+      },
+      "id": "S5DvZ50m7s",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Criar Autotuning",
+        "name": "http",
+        "x": 3580,
+        "y": 1260
+      },
+      "outputIds": [
+        [
+          "mOexZWJKjJ"
+        ]
+      ],
+      "type": "HttpNode"
+    },
+    {
+      "config": {
+        "keyName": "autotuning_order",
+        "resultPath": "",
+        "value": "data.autotuning_order.body",
+        "valueType": "path"
+      },
+      "id": "mOexZWJKjJ",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Set Order",
+        "name": "store-value",
+        "x": 3580,
+        "y": 1400
+      },
+      "outputIds": [
+        [
+          "SUiEDiVxsi"
+        ]
+      ],
+      "type": "StoreValueNode"
+    },
+    {
+      "config": {
+        "message": "",
+        "property": ""
+      },
+      "id": "SUiEDiVxsi",
+      "meta": {
+        "category": "output",
+        "description": "",
+        "label": "Debug",
+        "name": "debug",
+        "x": 3580,
+        "y": 1520
+      },
+      "outputIds": [
+      ],
+      "type": "DebugNode"
+    },
+    {
+      "config": {
+        "rules": [
+          {
+            "destination": "data.callback_url",
+            "type": "set",
+            "valueTemplate": "https://triggers.app.wnology.io/webhooks/YEbe8tfgivnW3_0oaF5CZvc-9n0lZvtQdpAv3HTS",
+            "valueTemplateType": "string"
+          }
+        ]
+      },
+      "id": "_ercudu7qX",
+      "meta": {
+        "category": "logic",
+        "description": "",
+        "label": "Mutate",
+        "name": "mutate",
+        "x": 3580,
+        "y": 920
+      },
+      "outputIds": [
+        [
+          "YFyPFHVoQE"
+        ]
+      ],
+      "type": "MutateNode"
+    },
+    {
+      "config": {
+        "operation": "format",
+        "resultFormatString": "YYYY-MM-DD HH:mm:ss",
+        "resultPath": "currentTime",
+        "timezone": "UTC"
+      },
+      "id": "YFyPFHVoQE",
+      "meta": {
+        "category": "logic",
+        "description": "",
+        "label": "Hora Atual",
+        "name": "date-time",
+        "x": 3580,
+        "y": 1020
+      },
+      "outputIds": [
+        [
+          "j7BdTosfAL"
+        ]
+      ],
+      "type": "DateTimeNode"
+    },
+    {
+      "config": {
+        "numberValue": "90",
+        "operation": "subtract",
+        "resultFormatString": "YYYY-MM-DD HH:mm:ss",
+        "resultPath": "pastTime",
+        "timezone": "UTC",
+        "unit": "day"
+      },
+      "id": "j7BdTosfAL",
+      "meta": {
+        "category": "logic",
+        "description": "",
+        "label": "Date/Time",
+        "name": "date-time",
+        "x": 3580,
+        "y": 1160
+      },
+      "outputIds": [
+        [
+          "S5DvZ50m7s"
+        ]
+      ],
+      "type": "DateTimeNode"
+    },
+    {
+      "config": {
+        "keyName": "autotuning_result",
+        "resultPath": "",
+        "value": "data.body.result.result",
+        "valueType": "path"
+      },
+      "id": "4gI526OcAG",
+      "meta": {
+        "category": "data",
+        "description": "",
+        "label": "Storage: Set Value",
+        "name": "store-value",
+        "x": 3920,
+        "y": 180
+      },
+      "outputIds": [
+        [
+          "JNvFZaOZne"
+        ]
+      ],
+      "type": "StoreValueNode"
+    },
+    {
+      "config": {
+        "message": "Autotuning Result",
+        "property": ""
+      },
+      "id": "JNvFZaOZne",
+      "meta": {
+        "category": "output",
+        "description": "",
+        "label": "Debug",
+        "name": "debug",
+        "x": 3920,
+        "y": 320
+      },
+      "outputIds": [
+      ],
+      "type": "DebugNode"
+    }
+  ],
+  "triggers": [
+    {
+      "config": {
+      },
+      "key": "6197e8ed7e9dfc4f1fa2d4f4-SDcWoSTVqfiucGb7uzu5_",
+      "meta": {
+        "category": "trigger",
+        "description": "",
+        "label": "Virtual Button",
+        "name": "virtualButton",
+        "payload": "",
+        "uiId": "KC5iT99VJz",
+        "x": 700,
+        "y": 60
+      },
+      "outputIds": [
+        [
+          "_KPV3RXzWQ"
+        ]
+      ],
+      "type": "virtualButton"
+    },
+    {
+      "config": {
+        "experienceVersion": "develop"
+      },
+      "key": "6198617b367d82c23b3a22ba",
+      "meta": {
+        "category": "trigger",
+        "description": "",
+        "label": "Get-Data",
+        "name": "endpoint",
+        "uiId": "0pQ_covo54",
+        "x": 2800,
+        "y": 40
+      },
+      "outputIds": [
+        [
+          "4wJLdOkThr"
+        ]
+      ],
+      "type": "endpoint"
+    },
+    {
+      "config": {
+      },
+      "key": "6197e8ed7e9dfc4f1fa2d4f4-w9ILjBPC07",
+      "meta": {
+        "category": "trigger",
+        "description": "",
+        "label": "Virtual Button",
+        "name": "virtualButton",
+        "payload": "",
+        "uiId": "KYp8hXeG8p",
+        "x": 1920,
+        "y": 40
+      },
+      "outputIds": [
+        [
+          "0nsHK6p5SE"
+        ]
+      ],
+      "type": "virtualButton"
+    },
+    {
+      "config": {
+      },
+      "key": "6198853eb04b695a0dc0e570",
+      "meta": {
+        "category": "trigger",
+        "description": "",
+        "label": "Forecast Result Hook",
+        "name": "webhook",
+        "uiId": "C5YRrxPX7y",
+        "x": 2300,
+        "y": 40
+      },
+      "outputIds": [
+        [
+          "YR_xiXwbJf"
+        ]
+      ],
+      "type": "webhook"
+    },
+    {
+      "config": {
+        "experienceVersion": "develop"
+      },
+      "key": "61988f95b66dd04d25b701d7",
+      "meta": {
+        "category": "trigger",
+        "description": "",
+        "label": "Get-Forecast-Data",
+        "name": "endpoint",
+        "uiId": "mYr3IKlv0M",
+        "x": 3080,
+        "y": 40
+      },
+      "outputIds": [
+        [
+          "gnqImKTNW0"
+        ]
+      ],
+      "type": "endpoint"
+    },
+    {
+      "config": {
+      },
+      "key": "6197e8ed7e9dfc4f1fa2d4f4-HYoOxYlBi4",
+      "meta": {
+        "category": "trigger",
+        "description": "",
+        "label": "Virtual Button",
+        "name": "virtualButton",
+        "payload": "",
+        "uiId": "6XOhqJpZ4M",
+        "x": 3580,
+        "y": 40
+      },
+      "outputIds": [
+        [
+          "Od8lewnnne"
+        ]
+      ],
+      "type": "virtualButton"
+    },
+    {
+      "config": {
+      },
+      "key": "619895c3598127b986e0ebd8",
+      "meta": {
+        "category": "trigger",
+        "description": "",
+        "label": "Autotuning Result Hook",
+        "name": "webhook",
+        "uiId": "u2_JAu0h01",
+        "x": 3920,
+        "y": 40
+      },
+      "outputIds": [
+        [
+          "4gI526OcAG"
+        ]
+      ],
+      "type": "webhook"
+    }
+  ]
+}

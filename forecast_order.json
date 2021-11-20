@@ -1,0 +1,55 @@
+{
+	"initial_datetime": "{{pastTime}}",
+	"final_datetime": "{{currentTime}}",
+    "strategy":"281bf348-f161-4f95-b971-30cc46417246",
+    "data_source": "data_api",
+    "data_source_data": {
+        "input_list": [
+            "{{data.pv_id}}"
+        ]
+    },
+    "inputs_map": {
+        "y": "{{data.pv_id}}"
+    },
+    "strategy_config": {
+        "predict_steps": 20,
+        "auto_ml_choices":["linear", "linear-seasonal", "modular"]
+    },
+    "callback_type": "api",
+    "callback_data": {
+        "url": "{{data.callback_url}}"
+    },
+    "preprocess": {
+        "input_configurations": {
+            "y": [
+                {
+            	    "args": {"errors": "coerce"},
+            	    "function": "convert_to_numeric"
+       	        },
+				{
+					"args": {"method":"normalize", "normalization_method":"min/max"},
+            	    "function": "scale_series"
+				}
+            ]
+        },
+        "global_configurations": [
+            {
+                "args": {"keep": "first", "input_types": "continuous", "data_types":"dataframe"},
+                "function": "remove_duplicated_index"
+            },
+            {
+                "function":"resample_dataset",
+                "args":{
+                    "frequency_value":5,
+                    "frequency_unit":"T",
+                    "default_numeric":"max",
+                    "default_non_numeric":"last"
+                }
+            },
+            {
+                "function": "nan_processing",
+                "args": {"method": "interpolate", "interpolate_method":"linear"}
+            }
+        ]
+    }
+}
